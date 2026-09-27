@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLauncher — Minecraft Launcher</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET ===== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* ===== VARS ===== */
+        :root {
+            --bg-dark: #1a1208;
+            --bg-dirt: #3b3325;
+            --bg-panel: #2d2820;
+            --bg-light: #4a4231;
+            --accent: #5a8f3c;
+            --accent-hover: #4a7a2e;
+            --gold: #ffcc00;
+            --gold-dark: #c8a000;
+            --text: #e8e0d0;
+            --text-gray: #a09880;
+            --border: #5c5240;
+            --red: #c04040;
+            --green-mr: #1bd96a;
+            --orange-cf: #f16436;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .pixel-font {
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        /* ===== DIRT PATTERN BG ===== */
+        .dirt-bg {
+            background-color: var(--bg-dirt);
+            background-image:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 63px,
+                    rgba(0,0,0,0.1) 63px,
+                    rgba(0,0,0,0.1) 64px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 63px,
+                    rgba(0,0,0,0.1) 63px,
+                    rgba(0,0,0,0.1) 64px
+                );
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: var(--bg-panel);
+            border-bottom: 4px solid var(--accent);
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.1rem;
+            color: var(--gold);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo span {
+            color: var(--text);
+            font-size: 0.7rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            padding: 8px 0;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(90,143,60,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(255,204,0,0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.6rem;
+            color: var(--accent);
+            background: rgba(90,143,60,0.15);
+            border: 2px solid var(--accent);
+            padding: 8px 18px;
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .hero-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 3.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            text-shadow:
+                4px 4px 0 #000,
+                -1px -1px 0 #000,
+                1px -1px 0 #000,
+                -1px 1px 0 #000;
+            line-height: 1.3;
+            position: relative;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.75rem;
+            padding: 18px 36px;
+            border: 3px solid;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s;
+            position: relative;
+            letter-spacing: 1px;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            bottom: -3px; right: -3px;
+            width: 100%; height: 100%;
+            border: 3px solid rgba(0,0,0,0.3);
+            z-index: -1;
+            transform: translate(4px, 4px);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: #2a6a1a;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-panel);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-light);
+            color: var(--gold);
+        }
+
+        .hero-info {
+            margin-top: 3rem;
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.5rem;
+            color: var(--gold);
+            display: block;
+        }
+
+        .hero-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            margin-top: 5px;
+        }
+
+        /* ===== SECTIONS ===== */
+        section {
+            padding: 5rem 2rem;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1.4rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 0.8rem;
+            text-shadow: 3px 3px 0 #000;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-gray);
+            margin-bottom: 3rem;
+            font-size: 1rem;
+        }
+
+        /* ===== FEATURES ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--bg-panel);
+            border: 3px solid var(--border);
+            padding: 2rem;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-4px);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.7rem;
+            color: var(--gold);
+            margin-bottom: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .feature-desc {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ===== LOADERS ===== */
+        .loaders-section {
+            background: var(--bg-panel);
+            border-top: 4px solid var(--accent);
+            border-bottom: 4px solid var(--accent);
+        }
+
+        .loaders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .loader-card {
+            background: var(--bg-dirt);
+            border: 2px solid var(--border);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .loader-card:hover {
+            border-color: var(--gold);
+            transform: scale(1.05);
+        }
+
+        .loader-name {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.55rem;
+            color: var(--text);
+            letter-spacing: 1px;
+        }
+
+        .loader-icon {
+            font-size: 2rem;
+            margin-bottom: 0.7rem;
+            display: block;
+        }
+
+        /* ===== MODS SECTION ===== */
+        .mods-sources {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .mod-source {
+            background: var(--bg-panel);
+            border: 3px solid;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .mod-source:hover {
+            transform: translateY(-5px);
+        }
+
+        .mod-source.modrinth {
+            border-color: var(--green-mr);
+        }
+
+        .mod-source.curseforge {
+            border-color: var(--orange-cf);
+        }
+
+        .mod-source-name {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 1rem;
+            margin: 1rem 0 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .modrinth .mod-source-name { color: var(--green-mr); }
+        .curseforge .mod-source-name { color: var(--orange-cf); }
+
+        .mod-source-desc {
+            color: var(--text-gray);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mod-source-icon {
+            font-size: 3rem;
+        }
+
+        .btn-modrinth {
+            background: var(--green-mr);
+            color: #000;
+            border-color: #15a352;
+        }
+
+        .btn-curseforge {
+            background: var(--orange-cf);
+            color: #fff;
+            border-color: #c04e28;
+        }
+
+        /* ===== SCREENSHOT ===== */
+        .screenshot-wrapper {
+            max-width: 850px;
+            margin: 0 auto;
+            border: 4px solid var(--border);
+            background: var(--bg-panel);
+            padding: 8px;
+            position: relative;
+        }
+
+        .screenshot-wrapper::before {
+            content: '⛏ SLauncher v2.1';
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.5rem;
+            color: var(--gold);
+            position: absolute;
+            top: -25px;
+            left: 0;
+        }
+
+        .screenshot-placeholder {
+            background: var(--bg-dark);
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            border: 2px dashed var(--border);
+        }
+
+        .screenshot-placeholder-text {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.7rem;
+            color: var(--text-gray);
+        }
+
+        .screenshot-placeholder-icon {
+            font-size: 4rem;
+            opacity: 0.3;
+        }
+
+        /* ===== DOWNLOAD ===== */
+        .download-section {
+            text-align: center;
+        }
+
+        .download-box {
+            background: var(--bg-panel);
+            border: 4px solid var(--accent);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 3rem;
+            position: relative;
+        }
+
+        .download-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: linear-gradient(90deg, var(--accent), var(--gold), var(--accent));
+        }
+
+        .download-version {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.6rem;
+            color: var(--text-gray);
+            margin-top: 1.5rem;
+        }
+
+        .download-size {
+            color: var(--text-gray);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .download-req {
+            margin-top: 2rem;
+            text-align: left;
+            background: var(--bg-dark);
+            padding: 1.5rem;
+            border: 2px solid var(--border);
+        }
+
+        .download-req h4 {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.55rem;
+            color: var(--gold);
+            margin-bottom: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .download-req li {
+            color: var(--text-gray);
+            font-size: 0.85rem;
+            margin-left: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--bg-panel);
+            border-top: 4px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .footer-text {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.5rem;
+            color: var(--text-gray);
+            line-height: 2;
+        }
+
+        .footer-text a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== PARTICLES ===== */
+        .particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--gold);
+            opacity: 0.15;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.15; }
+            90% { opacity: 0.15; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+            .nav-links { display: none; }
+            .mods-sources { grid-template-columns: 1fr; }
+            .hero-info { gap: 1.5rem; }
+            .btn { font-size: 0.6rem; padding: 14px 24px; }
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-light); border: 2px solid var(--bg-dark); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border); }
+    </style>
+</head>
+<body>
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="#" class="nav-logo">⛏ SLAUNCHER</a>
+        <ul class="nav-links">
+            <li><a href="#features">ФИЧИ</a></li>
+            <li><a href="#loaders">ЗАГРУЗЧИКИ</a></li>
+            <li><a href="#mods">МОДЫ</a></li>
+            <li><a href="#download">СКАЧАТЬ</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero dirt-bg">
+        <div class="hero-badge">OPEN SOURCE • FREE • FAST</div>
+        <h1 class="hero-title">⛏ SLAUNCHER</h1>
+        <p class="hero-subtitle">
+            Быстрый, красивый и бесплатный лаунчер для Minecraft.
+            Все версии от 1.0 до последней, моды, загрузчики — всё в одном месте.
+        </p>
+        <div class="hero-buttons">
+            <a href="#download" class="btn btn-primary">⬇ СКАЧАТЬ</a>
+            <a href="https://github.com/" class="btn btn-secondary" target="_blank">★ GITHUB</a>
+        </div>
+        <div class="hero-info">
+            <div class="hero-stat">
+                <span class="hero-stat-value">7</span>
+                <span class="hero-stat-label">Загрузчиков</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value">ALL</span>
+                <span class="hero-stat-label">Версии MC</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-value">0₽</span>
+                <span class="hero-stat-label">Бесплатно</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features">
+        <div class="container">
+            <h2 class="section-title">ВОЗМОЖНОСТИ</h2>
+            <p class="section-subtitle">Всё что нужно для идеальной игры</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🎮</span>
+                    <h3 class="feature-title">ВСЕ ВЕРСИИ</h3>
+                    <p class="feature-desc">От Minecraft 1.0 до последнего релиза. Выбирай любую версию и играй за секунды.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3 class="feature-title">БЫСТРЫЙ ЗАПУСК</h3>
+                    <p class="feature-desc">Автоматическое скачивание, установка и запуск. Один клик — и ты в игре.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🧩</span>
+                    <h3 class="feature-title">7 ЗАГРУЗЧИКОВ</h3>
+                    <p class="feature-desc">Vanilla, Forge, Fabric, NeoForge, OptiFine и комбинации. Моды без проблем.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📦</span>
+                    <h3 class="feature-title">МОДЫ В 1 КЛИК</h3>
+                    <p class="feature-desc">Встроенная интеграция с Modrinth и CurseForge. Моды скачиваются прямо в папку.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🎨</span>
+                    <h3 class="feature-title">ПИКСЕЛЬНЫЙ UI</h3>
+                    <p class="feature-desc">Интерфейс в стиле оригинального Minecraft. Ностальгия и стиль в одном.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">💾</span>
+                    <h3 class="feature-title">СОХРАНЕНИЕ</h3>
+                    <p class="feature-desc">Никнейм, версия, RAM и загрузчик сохраняются между запусками.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loaders -->
+    <section id="loaders" class="loaders-section">
+        <div class="container">
+            <h2 class="section-title">ЗАГРУЗЧИКИ</h2>
+            <p class="section-subtitle">Поддержка всех популярных загрузчиков модов</p>
+            <div class="loaders-grid">
+                <div class="loader-card">
+                    <span class="loader-icon">🟢</span>
+                    <span class="loader-name">VANILLA</span>
+                </div>
+                <div class="loader-card">
+                    <span class="loader-icon">🔨</span>
+                    <span class="loader-name">FORGE</span>
+                </div>
+                <div class="loader-card">
+                    <span class="loader-icon">🧵</span>
+                    <span class="loader-name">FABRIC</span>
+                </div>
+                <div class="loader-card">
+                    <span class="loader-icon">🔥</span>
+                    <span class="loader-name">NEOFORGE</span>
+                </div>
+                <div class="loader-card">
+                    <span class="loader-icon">👁️</span>
+                    <span class="loader-name">OPTIFINE</span>
+                </div>
+                <div class="loader-card">
+                    <span class="loader-icon">🔨👁️</span>
+                    <span class="loader-name">FORGE+OF</span>
+                </div>
+                <div class="loader-card">
+                    <span class="loader-icon">🧵👁️</span>
+                    <span class="loader-name">FABRIC+OF</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mods -->
+    <section id="mods">
+        <div class="container">
+            <h2 class="section-title">СКАЧАЙ МОДЫ</h2>
+            <p class="section-subtitle">Интеграция с лучшими каталогами модов</p>
+            <div class="mods-sources">
+                <div class="mod-source modrinth">
+                    <span class="mod-source-icon">🟩</span>
+                    <h3 class="mod-source-name">MODRINTH</h3>
+                    <p class="mod-source-desc">Открытая платформа с тысячами модов, шейдеров и ресурспаков</p>
+                    <a href="https://modrinth.com/mods" target="_blank" class="btn btn-modrinth" style="font-size:0.6rem;">ОТКРЫТЬ →</a>
+                </div>
+                <div class="mod-source curseforge">
+                    <span class="mod-source-icon">🟧</span>
+                    <h3 class="mod-source-name">CURSEFORGE</h3>
+                    <p class="mod-source-desc">Крупнейший каталог модов для Minecraft с огромным сообществом</p>
+                    <a href="https://www.curseforge.com/minecraft/search?class=mc-mods" target="_blank" class="btn btn-curseforge" style="font-size:0.6rem;">ОТКРЫТЬ →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Screenshot -->
+    <section class="dirt-bg">
+        <div class="container">
+            <h2 class="section-title">СКРИНШОТ</h2>
+            <p class="section-subtitle">Вот как выглядит SLauncher</p>
+            <div class="screenshot-wrapper">
+                <div class="screenshot-placeholder">
+                    <span class="screenshot-placeholder-icon">🖼️</span>
+                    <span class="screenshot-placeholder-text">СКРИНШОТ ЛАУНЧЕРА</span>
+                    <span style="font-size:0.7rem;color:var(--text-gray);">Добавь screenshot.png в папку сайта</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download -->
+    <section id="download" class="download-section">
+        <div class="container">
+            <h2 class="section-title">СКАЧАТЬ</h2>
+            <p class="section-subtitle">Один файл — и ты играешь</p>
+            <div class="download-box">
+                <h3 style="font-family:'Press Start 2P',monospace;font-size:1.2rem;color:var(--gold);margin-bottom:1rem;">⛏ SLAUNCHER</h3>
+                <a href="#" class="btn btn-primary" style="font-size:0.9rem;">⬇ СКАЧАТЬ .EXE</a>
+                <p class="download-version">Версия 2.1 • Windows x64</p>
+                <p class="download-size">Размер: ~30 МБ • Один файл</p>
+                <div class="download-req">
+                    <h4>СИСТЕМНЫЕ ТРЕБОВАНИЯ:</h4>
+                    <ul>
+                        <li>Windows 10/11 (64-bit)</li>
+                        <li>Java 8+ (для Minecraft)</li>
+                        <li>2 ГБ оперативной памяти</li>
+                        <li>Интернет для скачивания версий</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">
+            ⛏ SLAUNCHER • 2026<br><br>
+            Сделано с ❤️ и помощью AI<br><br>
+            <a href="https://github.com/" target="_blank">GitHub</a> •
+            Minecraft является торговой маркой Mojang AB
+        </p>
+    </footer>
+
+    <!-- Particles JS -->
+    <script>
+        const container = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDuration = (5 + Math.random() * 10) + 's';
+            p.style.animationDelay = Math.random() * 10 + 's';
+            p.style.width = p.style.height = (2 + Math.random() * 4) + 'px';
+            container.appendChild(p);
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
